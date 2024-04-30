@@ -1,0 +1,16 @@
+
+
+	From Dens Engine...
+	
+	SHATERGLASS!
+	
+	Simple and easy solution
+	to having glass shatter in combat-oriented maps.
+	Simply attach to any glass pane, add your effect, and shatter away!
+	
+	Global Sync,
+	Late-Join Sync,
+	Works with avatar weapons,
+	Auto-Removal for performance
+	Drag & Drop Inspector
+	Example Prefab included.
