@@ -2,7 +2,7 @@
 using System.Collections;
 using UdonSharp;
 using UnityEditor;
-using UnityEditor.UI;
+//using UnityEditor.UI; << Removed unneeded library (Thank you Stray for pointing this out!)
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
