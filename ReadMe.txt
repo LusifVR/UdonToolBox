@@ -4,4 +4,4 @@ events a little more immersive or just add some easement in development process.
 I will update this Readme as more scripts are added to explain each but if you
 have any questions feel free to reach out to me on discord. Lusif#4807
 
-Some Unity and Udon knowledge is required. 
+[ Some Unity and Udon knowledge is required.  ]
