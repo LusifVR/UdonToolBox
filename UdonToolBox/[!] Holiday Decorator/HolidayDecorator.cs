@@ -167,6 +167,7 @@ public class HolidayDecorator : UdonSharpBehaviour
     #region Initial Setup
     public void Start()
     {
+
         if (!isDebugMode)
         {
             SetDate();
@@ -175,6 +176,8 @@ public class HolidayDecorator : UdonSharpBehaviour
         {
             SetDebugDate();
         }
+
+
     }
 
     public override void OnPlayerJoined(VRCPlayerApi player)
@@ -241,7 +244,7 @@ public class HolidayDecorator : UdonSharpBehaviour
                 break;
             case 10:
                 MonthName = monthNames[9]; // October
-                if (CurrentDay >= 20 && CurrentDay <= 31) { CurrentHoliday = 4; } // Set for Halloween
+                if (CurrentDay >= 20 && CurrentDay <= 31) { CurrentHoliday = 5; } // Set for Halloween
                 CurrentSeason = 2;
                 break;
             case 11:
@@ -250,7 +253,7 @@ public class HolidayDecorator : UdonSharpBehaviour
                 break;
             case 12:
                 MonthName = monthNames[11]; // December
-                if (CurrentDay >= 20 && CurrentDay <= 29) { CurrentHoliday = 4; } // Set for Christmas
+                if (CurrentDay >= 20 && CurrentDay <= 29) { CurrentHoliday = 6; } // Set for Christmas
                 if (CurrentDay >= 30 && CurrentDay <= 31) { CurrentHoliday = 0; } // Set for New Years
                 CurrentSeason = 3;
                 break;
@@ -263,11 +266,32 @@ public class HolidayDecorator : UdonSharpBehaviour
         // Check for custom Holiday
         if (CustomMonth == CurrentMonth)
         {
-            // Custom holiday month matches the current, check date(s)
-            if (CurrentDay >= CustomDay && CurrentDay <= CustomDayRange)
+            Debug.Log("CustomMonthFound");
+            // Due to the nature of CustomDayRange, it may cause the overlap to bleed into the
+            // next month. Thanks to Stray for pointing out this oversight. To fix this issue
+            // we'll cache how many days are in the month and then calculate the endday
+
+
+            int daysInCurrentMonth = DateTime.DaysInMonth(DateTime.Now.Year, CurrentMonth);
+            int endDay = CustomDay + CustomDayRange;
+
+            if (endDay <= daysInCurrentMonth)
             {
-                // The holiday is within custom parameters, set current holiday to custom.
-                CurrentHoliday = 7;
+                // Holiday resides within this month.
+                if (CurrentDay >= CustomDay && CustomDay < endDay)
+                {
+                    CheckCustomHoliday();
+                }
+            }
+            else
+            {
+                // The holiday bleeds into next month
+                int overflowDays = endDay - daysInCurrentMonth;
+
+                if (CurrentDay >= CustomDay || CurrentDay <= overflowDays)
+                {
+                    CheckCustomHoliday();
+                }       
             }
         }
 
@@ -287,66 +311,6 @@ public class HolidayDecorator : UdonSharpBehaviour
 
     private void SetHoliday()
     {
-        // Same as seasonal, disable all first
-        #region Init Disable
-        for (int i = 0; i < NewYears.Length; i++) 
-        {
-            if (NewYears[i])
-            { // Check if each object is valid, if not- skip.
-                NewYears[i].SetActive(false);
-            }
-        }
-        for (int i = 0; i < Valentines.Length; i++)
-        {
-            if (Valentines[i])
-            { // Check if each object is valid, if not- skip.
-                Valentines[i].SetActive(false);
-            }
-        }
-        for (int i = 0; i < StPatrick.Length; i++)
-        {
-            if (StPatrick[i])
-            { // Check if each object is valid, if not- skip.
-                StPatrick[i].SetActive(false);
-            }
-        }
-        for (int i = 0; i < Easter.Length; i++)
-        {
-            if (Easter[i])
-            { // Check if each object is valid, if not- skip.
-                Easter[i].SetActive(false);
-            }
-        }
-        for (int i = 0; i < IndependenceDay.Length; i++)
-        {
-            if (IndependenceDay[i])
-            { // Check if each object is valid, if not- skip.
-                IndependenceDay[i].SetActive(false);
-            }
-        }
-        for (int i = 0; i < Halloween.Length; i++)
-        {
-            if (Halloween[i])
-            { // Check if each object is valid, if not- skip.
-                Halloween[i].SetActive(false);
-            }
-        }
-        for (int i = 0; i < XMas.Length; i++)
-        {
-            if (XMas[i])
-            { // Check if each object is valid, if not- skip.
-                XMas[i].SetActive(false);
-            }
-        }
-        for (int i = 0; i < CustomHoliday.Length; i++)
-        {
-            if (CustomHoliday[i])
-            { // Check if each object is valid, if not- skip.
-                CustomHoliday[i].SetActive(false);
-            }
-        }
-        #endregion
-
         // Now enable objects per season
         switch (CurrentHoliday)
         {
@@ -413,15 +377,18 @@ public class HolidayDecorator : UdonSharpBehaviour
                     }
                 }
                 break;
-            case 7:
-                for (int i = 0; i < CustomHoliday.Length; i++)
-                {
-                    if (CustomHoliday[i])
-                    { // Check if each object is valid, if not- skip.
-                        CustomHoliday[i].SetActive(true);
-                    }
-                }
-                break;
+                // moved custom holiday to its own function
+        }
+    }
+    
+    private void CheckCustomHoliday()
+    {
+        for (int i = 0; i < CustomHoliday.Length; i++)
+        {
+            if (CustomHoliday[i])
+            { // Check if each object is valid, if not- skip.
+                CustomHoliday[i].SetActive(true);
+            }
         }
     }
 
@@ -430,36 +397,7 @@ public class HolidayDecorator : UdonSharpBehaviour
         // Get the range of months and apply seasonal items on.
         // First, disable all objects on a change.
 
-        #region Init Disable
-        for (int i = 0; i < Spring.Length; i++) // SPRING <<<------
-        {
-            if (Spring[i])
-            { // Check if each object is valid, if not- skip.
-                Spring[i].SetActive(false);
-            }
-        }
-        for (int i = 0; i < Summer.Length; i++) // SUMMER <<<------
-        {
-            if (Summer[i])
-            { // Check if each object is valid, if not- skip.
-                Summer[i].SetActive(false);
-            }
-        }
-        for (int i = 0; i < Autumn.Length; i++) // AUTUMN <<<------
-        {
-            if (Autumn[i])
-            { // Check if each object is valid, if not- skip.
-                Autumn[i].SetActive(false);
-            }
-        }
-        for (int i = 0; i < Winter.Length; i++) // WINTER <<<------
-        {
-            if (Winter[i])
-            { // Check if each object is valid, if not- skip.
-                Winter[i].SetActive(false);
-            }
-        }
-        #endregion
+        
 
         // Now enable objects per the season we are in.
         switch (CurrentSeason)
