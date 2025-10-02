@@ -12,21 +12,17 @@ using TMPro;
 //        / / / / ____ / / (_)____ / / ____ _ ____   / __ \ ___   _____ ____   _____ ____  _ / /_ ___   _____
 //       / /_/ // __ \ / // // __  // __ `// / / /  / / / // _ \ / ___// __ \ / ___// __ `// __// __ \ / ___/
 //      / __  // /_/ // // // /_/ // /_/ // /_/ /  / /_/ //  __// /__ / /_/ // /   / /_/ // /_ / /_/ // /    
-//     /_/ /_/ \____//_//_/ \__,_/ \__,_/ \__, /  /_____/ \___/ \___/ \____//_/    \__,_/ \__/ \____//_/     v2.1!
+//     /_/ /_/ \____//_//_/ \__,_/ \__,_/ \__, /  /_____/ \___/ \___/ \____//_/    \__,_/ \__/ \____//_/     v2.2!
 //                                       /____/                                                              
 //
 //    Made by Lusif#4807 for VRChat Udon     
 //    Part of https://github.com/LusifVR/UdonToolBox  - Feel free to edit - please do not sell my code.  
 //
 // ▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
-// Version 2.1!
+// Version 2.2!
 // Changes:
 
-// + Added tooltips :)
-// + Added some more code-comments to make editing a bit easier
-// + Added the ability to set custom holiday ranges
-// + Added external compatibility (it wasnt there? . _. )
-// + Added internal 'CurrentYear' variable
+// + Fixed a bug with holiday rollover. Thank you Stray :)
 
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)] // No sync mode since time is local.
 public class HolidayDecorator : UdonSharpBehaviour
@@ -58,46 +54,46 @@ public class HolidayDecorator : UdonSharpBehaviour
     // are numbered by the month of the year. (1-12)
 
     [SerializeField] private GameObject[] NewYears;
-        [Tooltip("The day of the month the holiday begins.")]
-            public int NewYears_Start = 30; // (December 30th)
-        [Tooltip("The day of the month the holiday ends.")]
-            public int NewYears_End = 3;
+    [Tooltip("The day of the month the holiday begins.")]
+    public int NewYears_Start = 30; // (December 30th)
+    [Tooltip("The day of the month the holiday ends.")]
+    public int NewYears_End = 3;
 
     [SerializeField] private GameObject[] Valentines;
-        [Tooltip("The day of the month the holiday begins.")]
-            public int Valentines_Start = 10;
-        [Tooltip("The day of the month the holiday ends.")]
-            public int Valentines_End = 17;
+    [Tooltip("The day of the month the holiday begins.")]
+    public int Valentines_Start = 10;
+    [Tooltip("The day of the month the holiday ends.")]
+    public int Valentines_End = 17;
 
     [SerializeField] private GameObject[] StPatrick;
-        [Tooltip("The day of the month the holiday begins.")]
-            public int StPatrick_Start = 15;
-        [Tooltip("The day of the month the holiday ends.")]
-            public int StPatrick_End = 18;
+    [Tooltip("The day of the month the holiday begins.")]
+    public int StPatrick_Start = 15;
+    [Tooltip("The day of the month the holiday ends.")]
+    public int StPatrick_End = 18;
 
     [SerializeField] private GameObject[] Easter;
-        [Tooltip("The day of the month the holiday begins.")]
-            public int Easter_Start = 1;
-        [Tooltip("The day of the month the holiday ends.")]
-            public int Easter_End = 20;
+    [Tooltip("The day of the month the holiday begins.")]
+    public int Easter_Start = 1;
+    [Tooltip("The day of the month the holiday ends.")]
+    public int Easter_End = 20;
 
     [SerializeField] private GameObject[] IndependenceDay;
-        [Tooltip("The day of the month the holiday begins.")]
-            public int IndependenceDay_Start = 1;
-        [Tooltip("The day of the month the holiday ends.")]
-            public int IndependenceDay_End = 5;
+    [Tooltip("The day of the month the holiday begins.")]
+    public int IndependenceDay_Start = 1;
+    [Tooltip("The day of the month the holiday ends.")]
+    public int IndependenceDay_End = 5;
 
     [SerializeField] private GameObject[] Halloween;
-        [Tooltip("The day of the month the holiday begins.")]
-            public int Halloween_Start = 20;
-        [Tooltip("The day of the month the holiday ends.")]
-            public int Halloween_End = 31;
+    [Tooltip("The day of the month the holiday begins.")]
+    public int Halloween_Start = 20;
+    [Tooltip("The day of the month the holiday ends.")]
+    public int Halloween_End = 31;
 
     [SerializeField] private GameObject[] XMas;
-        [Tooltip("The day of the month the holiday begins.")]
-            public int XMas_Start = 20;
-        [Tooltip("The day of the month the holiday ends.")]
-            public int XMas_End = 29;
+    [Tooltip("The day of the month the holiday begins.")]
+    public int XMas_Start = 20;
+    [Tooltip("The day of the month the holiday ends.")]
+    public int XMas_End = 29;
     #endregion
 
     #region Custom Holiday
@@ -152,8 +148,10 @@ public class HolidayDecorator : UdonSharpBehaviour
 
     public void SetDebugDate()
     {
+        DisableAllDecorations();
         CurrentDay = DEBUGDAY;
         CurrentMonth = DEBUGMONTH;
+        CurrentYear = DateTime.Now.Year;
         SetDecor();
     }
     #endregion
@@ -253,7 +251,7 @@ public class HolidayDecorator : UdonSharpBehaviour
                     ExternalScripts[i].SendCustomEvent("Holiday_NewHoliday");
                 }
 
-                ExternalScripts[i].SetProgramVariable("Day",CurrentDay);
+                ExternalScripts[i].SetProgramVariable("Day", CurrentDay);
                 ExternalScripts[i].SetProgramVariable("Month", CurrentMonth);
                 ExternalScripts[i].SetProgramVariable("Year", CurrentYear);
                 ExternalScripts[i].SetProgramVariable("HolidayID", CurrentHoliday);
@@ -320,33 +318,34 @@ public class HolidayDecorator : UdonSharpBehaviour
 
     private void CheckForCustomHoliday()
     {
-        // Check for custom Holiday
-        if (CustomMonth == CurrentMonth || (CustomMonth == CurrentMonth - 1 && CustomDay + CustomDayRange > DateTime.DaysInMonth(DateTime.Now.Year, CustomMonth)))
+        int daysInCurrentMonth = DateTime.DaysInMonth(CurrentYear, CurrentMonth);
+        int daysInCustomMonth = DateTime.DaysInMonth(CurrentYear, CustomMonth);
+        int endDay = CustomDay + CustomDayRange;
+
+        // Case 1: Holiday entirely inside the custom month
+        if (CustomMonth == CurrentMonth && endDay <= daysInCustomMonth)
         {
-            // Compute days in current and previous month
-            int daysInCurrentMonth = DateTime.DaysInMonth(DateTime.Now.Year, CurrentMonth);
-            int daysInCustomMonth = DateTime.DaysInMonth(DateTime.Now.Year, CustomMonth);
-
-            // Calculate the end day for the holiday, considering overflow
-            int endDay = CustomDay + CustomDayRange;
-            if (endDay <= daysInCustomMonth)
+            if (CurrentDay >= CustomDay && CurrentDay <= endDay)
             {
-                // Custom holiday does not overflow into the next month
-                if (CurrentDay >= CustomDay && CurrentDay <= endDay)
-                {
-                    ActivateHolidayObjects(CustomHoliday);
-                }
+                ActivateHolidayObjects(CustomHoliday);
             }
-            else
+        }
+        // Case 2: Still in the custom month, but holiday overflows to the next month
+        else if (CustomMonth == CurrentMonth)
+        {
+            if (CurrentDay >= CustomDay)
             {
-                // Custom holiday overflows into the next month
-                int overflowDays = endDay - daysInCustomMonth;
+                ActivateHolidayObjects(CustomHoliday);
+            }
+        }
+        // Case 3: We are in the following month (handle overflow)
+        else if (CustomMonth == CurrentMonth - 1 || (CustomMonth == 12 && CurrentMonth == 1))
+        {
+            int overflowDays = endDay - daysInCustomMonth;
 
-                // Check if we are within the overflow period
-                if (CurrentDay >= CustomDay || CurrentDay <= overflowDays)
-                {
-                    ActivateHolidayObjects(CustomHoliday);
-                }
+            if (CurrentDay <= overflowDays)
+            {
+                ActivateHolidayObjects(CustomHoliday);
             }
         }
     }
